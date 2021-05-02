@@ -84,11 +84,11 @@ const run = () => {
     const config = {
         asset: 'DOGE',
         base: 'BUSD',
-        buySpread: 0.025, // { 0-1 } percentage of asset price fluctuation to trigger buy limit order
+        buySpread: 0.02, // { 0-1 } percentage of asset price fluctuation to trigger buy limit order
         sellSpread: 0.02, // { 0-1 } percentage of asset price fluctuation to trigger sell limit order
         buyAllocation: 0.25, // { 0-1 } percentage of how much of the base balance to allocate for the buy order
         sellAllocation: 0.25, // { 0-1 } percentage of how much of the asset balance to allocate for the sell order
-        tickInterval: 5 * 60 * 1000, // ms
+        tickInterval: 10 * 60 * 1000, // ms
     };
 
     const binanceClient = new ccxt.binance({
