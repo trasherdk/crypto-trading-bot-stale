@@ -1,3 +1,5 @@
+const http = require('http');
+
 require('dotenv').config;
 
 const ccxt = require('ccxt');
@@ -82,7 +84,7 @@ const run = () => {
     const config = {
         asset: 'DOGE',
         base: 'BUSD',
-        spread: 0.01, // { 0-1 } percentage of fluctuation to trigger limit order
+        spread: 0.005, // { 0-1 } percentage of fluctuation to trigger limit order
         buyAllocation: 0.2, // { 0-1 } percentage of how much of the base balance to allocate for the buy order
         sellAllocation: 0.25, // { 0-1 } percentage of how much of the asset balance to allocate for the sell order
         tickInterval: 3 * 60 * 1000, // ms
@@ -99,5 +101,18 @@ const run = () => {
     setInterval(tick, config.tickInterval, config, binanceClient);
 };
 
-/** invoke crypto trading bot */
-run();
+const hostname = '127.0.0.1';
+const port = 3010;
+
+const server = http.createServer((req, res) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('OK');
+});
+
+server.listen(port, hostname, () => {
+    console.log(`Server running at http://${hostname}:${port}/`);
+
+    /** invoke crypto trading bot */
+    run();
+});
