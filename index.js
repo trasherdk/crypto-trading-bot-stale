@@ -4,6 +4,9 @@ const ccxt = require('ccxt');
 const axios = require('axios');
 
 const tick = async(config, binanceClient) => {
+    var now = new Date();
+    console.log('\n\n [!] starting new iteration...', now.toUTCString());
+
     const { asset, base, spread, buyAllocation, sellAllocation } =  config;
     const market = `${asset}/${base}`;
 
@@ -79,10 +82,10 @@ const run = () => {
     const config = {
         asset: 'DOGE',
         base: 'BUSD',
-        spread: 0.03, // { 0-1 } percentage of fluctuation to trigger limit order
+        spread: 0.01, // { 0-1 } percentage of fluctuation to trigger limit order
         buyAllocation: 0.2, // { 0-1 } percentage of how much of the base balance to allocate for the buy order
         sellAllocation: 0.25, // { 0-1 } percentage of how much of the asset balance to allocate for the sell order
-        tickInterval: 15000, // ms
+        tickInterval: 3 * 60 * 1000, // ms
     };
 
     const binanceClient = new ccxt.binance({
