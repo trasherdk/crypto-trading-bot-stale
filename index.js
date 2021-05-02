@@ -102,7 +102,7 @@ const run = () => {
 };
 
 const hostname = '127.0.0.1';
-const port = 3010;
+const port = process.env.PORT || 3010;
 
 const server = http.createServer((req, res) => {
     res.statusCode = 200;
