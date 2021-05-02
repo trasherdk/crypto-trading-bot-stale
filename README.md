@@ -16,7 +16,7 @@ $ cp .env.prod .prod
 # install dependencies
 $ npm install
 
-# serve with hot reload at localhost:3001
+# run trading bot
 $ npm run dev
 ```
 
