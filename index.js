@@ -13,9 +13,10 @@ const tick = async(config, binanceClient) => {
     // console.log('Free base (USDT)', balances.free[asset]);
 
     /** cancel previously scheduled (limit) orders for the market */
-    const order = await binanceClient.fetchOpenOrders(market);
-    order.forEach(async order => {
-        await binanceClient.cancelOrder(order.id);
+    const orders = await binanceClient.fetchOpenOrders(market);
+    orders.forEach(async order => {
+        console.log('order', order.id, `${asset}${base}`);
+        await binanceClient.cancelOrder(order.id, market);
     });
 
     const coingeckoPrices = await Promise.all([
@@ -53,21 +54,23 @@ const tick = async(config, binanceClient) => {
     const sellVolume = assetBalance * sellAllocation;
     const buyVolume = (baseBalance * buyAllocation) / marketPrice;
 
-    const totalSold = sellVolume * sellPrice; // of BUSD
-    const totalBought = buyVolume * buyPrice; // of BUSD
+    const totalToBeSold = sellVolume * sellPrice; // of BUSD
+    const totalToBeBought = buyVolume * buyPrice; // of BUSD
 
     console.log(`
         Tick for ${market}...
-        Limit sell order for ${sellVolume} DOGE @ ${sellPrice} BUSD = ${totalSold} BUSD
-        Limit buy order for ${buyVolume} DOGE @ ${buyPrice} BUSD = ${totalBought} BUSD
+        Limit sell order for ${sellVolume} DOGE @ ${sellPrice} BUSD = ${totalToBeSold} BUSD
+        Limit buy order for ${buyVolume} DOGE @ ${buyPrice} BUSD = ${totalToBeBought} BUSD
     `);
 
     // TODO: enable real trading if deal size is more than 10 USD
-    if (totalSold > 10) {
+    if (totalToBeSold > 10) {
+        console.log('[!] setting real sell order');
         await binanceClient.createLimitSellOrder(market, sellVolume, sellPrice);
     }
 
-    if (totalBought) {
+    if (totalToBeBought) {
+        console.log('[!] setting real buy order');
         await binanceClient.createLimitBuyOrder(market, buyVolume, buyPrice);
     }
 };
