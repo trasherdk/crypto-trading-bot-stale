@@ -7,23 +7,19 @@ const axios = require('axios');
 
 const tick = async(config, binanceClient) => {
     var now = new Date();
-    console.log('\n\n [!] starting new iteration...', now.toUTCString());
+    console.log('\n\n [>>>>>>>>>>] starting new iteration...', now.toUTCString(), '\n');
 
     const { asset, base, buySpread, sellSpread, buyAllocation, sellAllocation } =  config;
     const market = `${asset}/${base}`;
 
-    // check Binance balance 
-    // const balances = await binanceClient.fetchBalance();
-    // console.log('Free asset (DOGE)', balances.free[asset]);
-    // console.log('Free base (USDT)', balances.free[asset]);
-
     /** cancel previously scheduled (limit) orders for the market */
     const orders = await binanceClient.fetchOpenOrders(market);
     orders.forEach(async order => {
-        console.log('canceling order', order.id, market);
+        console.log('[/] canceling order', order.id, market);
         await binanceClient.cancelOrder(order.id, market);
     });
 
+    /** fetch market prices based on USD */
     const coingeckoPrices = await Promise.all([
         axios.get(
             'https://api.coingecko.com/api/v3/simple/price?ids=dogecoin&vs_currencies=USD'
@@ -36,26 +32,28 @@ const tick = async(config, binanceClient) => {
     const USD_PER_BASE = coingeckoPrices[1].data.busd.usd;
     const USD_PER_ASSET = coingeckoPrices[0].data.dogecoin.usd;
 
+    console.log('');
     console.log('USD per DOGE', USD_PER_ASSET);
-    console.log('USD per BUSD', USD_PER_BASE);
+    console.log('USD per BUSD', USD_PER_BASE, '\n');
 
-    /** 
-     * calculate SELL & BUY orders
-     * */
-    const marketPrice = USD_PER_ASSET / USD_PER_BASE;
-    console.log('market price', marketPrice);
-
-    const buyPrice = marketPrice * (1 - buySpread);
-    const sellPrice = marketPrice * (1 + sellSpread);
-
-    /** availbale assets balance */
+    /** check available Binance balances */
     const balances = await binanceClient.fetchBalance();
     const baseBalance = balances.free[base];
     const assetBalance = balances.free[asset];
 
-    console.log('[BUSD] base balance', baseBalance);
     console.log('[DOGE] asset balance', assetBalance);
+    console.log('[BUSD] base balance', baseBalance);
 
+    /** calculate market price */
+    const marketPrice = USD_PER_ASSET / USD_PER_BASE;
+    console.log('');
+    console.log('DOGE market price', marketPrice);
+
+    /** determine buy & sell prices */
+    const buyPrice = marketPrice * (1 - buySpread);
+    const sellPrice = marketPrice * (1 + sellSpread);
+
+    /** determine buy & sell volumes */
     const sellVolume = assetBalance * sellAllocation;
     const buyVolume = (baseBalance * buyAllocation) / marketPrice;
 
@@ -63,19 +61,19 @@ const tick = async(config, binanceClient) => {
     const totalToBeBought = buyVolume * buyPrice; // of BUSD
 
     console.log(`
-        Tick for ${market}...
-        Limit sell order for ${sellVolume} DOGE @ ${sellPrice} BUSD = ${totalToBeSold} BUSD
-        Limit buy order for ${buyVolume} DOGE @ ${buyPrice} BUSD = ${totalToBeBought} BUSD
+        ${market} market limit orders:
+        - Buy ${buyVolume} @ ${buyPrice} => ${totalToBeBought} BUSD
+        - Sell ${sellVolume} @ ${sellPrice} => ${totalToBeSold} BUSD
     `);
 
-    // TODO: enable real trading if deal size is more than 10 USD
+    /** enable real trading if deal size is more than 10 USD */
     if (totalToBeSold > 10) {
-        console.log('[!] setting real sell order');
+        console.log('[!] creating limit sell order');
         await binanceClient.createLimitSellOrder(market, sellVolume, sellPrice);
     }
 
     if (totalToBeBought > 10) {
-        console.log('[!] setting real buy order');
+        console.log('[!] creating limit buy order');
         await binanceClient.createLimitBuyOrder(market, buyVolume, buyPrice);
     }
 };
