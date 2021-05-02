@@ -9,7 +9,7 @@ const tick = async(config, binanceClient) => {
     var now = new Date();
     console.log('\n\n [!] starting new iteration...', now.toUTCString());
 
-    const { asset, base, spread, buyAllocation, sellAllocation } =  config;
+    const { asset, base, buySpread, sellSpread, buyAllocation, sellAllocation } =  config;
     const market = `${asset}/${base}`;
 
     // check Binance balance 
@@ -45,8 +45,8 @@ const tick = async(config, binanceClient) => {
     const marketPrice = USD_PER_ASSET / USD_PER_BASE;
     console.log('market price', marketPrice);
 
-    const buyPrice = marketPrice * (1 - spread);
-    const sellPrice = marketPrice * (1 + spread);
+    const buyPrice = marketPrice * (1 - buySpread);
+    const sellPrice = marketPrice * (1 + sellSpread);
 
     /** availbale assets balance */
     const balances = await binanceClient.fetchBalance();
@@ -84,10 +84,11 @@ const run = () => {
     const config = {
         asset: 'DOGE',
         base: 'BUSD',
-        spread: 0.005, // { 0-1 } percentage of fluctuation to trigger limit order
-        buyAllocation: 0.2, // { 0-1 } percentage of how much of the base balance to allocate for the buy order
+        buySpread: 0.025, // { 0-1 } percentage of asset price fluctuation to trigger buy limit order
+        sellSpread: 0.02, // { 0-1 } percentage of asset price fluctuation to trigger sell limit order
+        buyAllocation: 0.25, // { 0-1 } percentage of how much of the base balance to allocate for the buy order
         sellAllocation: 0.25, // { 0-1 } percentage of how much of the asset balance to allocate for the sell order
-        tickInterval: 1.5 * 60 * 1000, // ms
+        tickInterval: 5 * 60 * 1000, // ms
     };
 
     const binanceClient = new ccxt.binance({
