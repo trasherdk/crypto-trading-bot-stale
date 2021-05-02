@@ -63,8 +63,13 @@ const tick = async(config, binanceClient) => {
     `);
 
     // TODO: enable real trading if deal size is more than 10 USD
-    // await binanceClient.createLimitSellOrder(market, sellVolume, sellPrice);
-    // await binanceClient.createLimitBuyOrder(market, buyVolume, buyPrice);
+    if (totalSold > 10) {
+        await binanceClient.createLimitSellOrder(market, sellVolume, sellPrice);
+    }
+
+    if (totalBought) {
+        await binanceClient.createLimitBuyOrder(market, buyVolume, buyPrice);
+    }
 };
 
 const run = () => {
