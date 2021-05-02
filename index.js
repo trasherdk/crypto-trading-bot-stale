@@ -20,7 +20,7 @@ const tick = async(config, binanceClient) => {
     /** cancel previously scheduled (limit) orders for the market */
     const orders = await binanceClient.fetchOpenOrders(market);
     orders.forEach(async order => {
-        console.log('order', order.id, `${asset}${base}`);
+        console.log('canceling order', order.id, market);
         await binanceClient.cancelOrder(order.id, market);
     });
 
