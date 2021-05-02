@@ -20,27 +20,27 @@ const tick = async(config, binanceClient) => {
 
     const coingeckoPrices = await Promise.all([
         axios.get(
-            'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=USD'
+            'https://api.coingecko.com/api/v3/simple/price?ids=dogecoin&vs_currencies=USD'
         ),
         axios.get(
-            'https://api.coingecko.com/api/v3/simple/price?ids=dogecoin&vs_currencies=USD'
+            'https://api.coingecko.com/api/v3/simple/price?ids=busd&vs_currencies=USD'
         ),
     ]);
 
-    const USD_PER_BTC = coingeckoPrices[0].data.bitcoin.usd;
-    const USD_PER_DOGE = coingeckoPrices[1].data.dogecoin.usd;
+    const USD_PER_DOGE = coingeckoPrices[0].data.dogecoin.usd;
+    const USD_PER_USDT = coingeckoPrices[1].data.busd.usd;
 
-    console.log('USD per BTC', USD_PER_BTC);
     console.log('USD per DOGE', USD_PER_DOGE);
+    console.log('USD per USDT', USD_PER_USDT);
 
     /** 
      * calculate SELL & BUY orders
      * */
-    const marketPrice = USD_PER_BTC / USD_PER_DOGE;
+    const marketPrice = USD_PER_DOGE / USD_PER_USDT;
     console.log('market price', marketPrice);
 
-    const buyPrice = marketPrice * (1 + spread);
-    const sellPrice = marketPrice * (1 - spread);
+    const buyPrice = marketPrice * (1 - spread);
+    const sellPrice = marketPrice * (1 + spread);
 
     /** availbale assets balance */
     const balances = await binanceClient.fetchBalance();
@@ -62,6 +62,7 @@ const tick = async(config, binanceClient) => {
         Limit buy order for ${buyVolume}@${buyPrice}=${totalBought}
     `);
 
+    // TODO: enable real trading if deal size is more than 10 USD
     // await binanceClient.createLimitSellOrder(market, sellVolume, sellPrice);
     // await binanceClient.createLimitBuyOrder(market, buyVolume, buyPrice);
 };
