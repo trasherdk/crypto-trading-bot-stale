@@ -27,16 +27,16 @@ const tick = async(config, binanceClient) => {
         ),
     ]);
 
-    const USD_PER_DOGE = coingeckoPrices[0].data.dogecoin.usd;
-    const USD_PER_USDT = coingeckoPrices[1].data.busd.usd;
+    const USD_PER_BASE = coingeckoPrices[1].data.busd.usd;
+    const USD_PER_ASSET = coingeckoPrices[0].data.dogecoin.usd;
 
-    console.log('USD per DOGE', USD_PER_DOGE);
-    console.log('USD per USDT', USD_PER_USDT);
+    console.log('USD per DOGE', USD_PER_ASSET);
+    console.log('USD per BUSD', USD_PER_BASE);
 
     /** 
      * calculate SELL & BUY orders
      * */
-    const marketPrice = USD_PER_DOGE / USD_PER_USDT;
+    const marketPrice = USD_PER_ASSET / USD_PER_BASE;
     console.log('market price', marketPrice);
 
     const buyPrice = marketPrice * (1 - spread);
@@ -58,8 +58,8 @@ const tick = async(config, binanceClient) => {
 
     console.log(`
         Tick for ${market}...
-        Limit sell order for ${sellVolume}@${sellPrice}=${totalSold}
-        Limit buy order for ${buyVolume}@${buyPrice}=${totalBought}
+        Limit sell order for ${sellVolume} DOGE @ ${sellPrice} BUSD = ${totalSold} BUSD
+        Limit buy order for ${buyVolume} DOGE @ ${buyPrice} BUSD = ${totalBought} BUSD
     `);
 
     // TODO: enable real trading if deal size is more than 10 USD
