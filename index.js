@@ -69,7 +69,7 @@ const tick = async(config, binanceClient) => {
         await binanceClient.createLimitSellOrder(market, sellVolume, sellPrice);
     }
 
-    if (totalToBeBought) {
+    if (totalToBeBought > 10) {
         console.log('[!] setting real buy order');
         await binanceClient.createLimitBuyOrder(market, buyVolume, buyPrice);
     }
