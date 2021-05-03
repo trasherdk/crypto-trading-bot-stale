@@ -1,15 +1,20 @@
+require('dotenv').config();
+
 const http = require('http');
-
-require('dotenv').config;
-
 const ccxt = require('ccxt');
 const axios = require('axios');
 
-const tick = async(config, binanceClient) => {
+const MIN_ORDER_VOLUME = 10.0; // BUSD
+
+const isProduction = () => {
+    return process.env.ENV === 'prod';
+};
+
+const tick = async (config, binanceClient) => {
     const now = new Date();
     console.log('\n\n [>>>>>>>>>>] starting new iteration...', now.toUTCString(), '\n');
 
-    const { asset, base, buySpread, sellSpread, buyAllocation, sellAllocation } =  config;
+    const { asset, base, buySpread, sellSpread, buyAllocation, sellAllocation } = config;
     const market = `${asset}/${base}`;
 
     /** cancel previously scheduled (limit) orders for the market */
@@ -17,13 +22,15 @@ const tick = async(config, binanceClient) => {
     if (orders.length === 2) {
         console.log('[<>] skipping, orders already active...', market);
         for (const order of orders) {
-            console.log(order.side, order.amount, 'DOGE @' ,order.price, 'BUSD');
+            console.log(order.side, order.amount, 'DOGE @', order.price, 'BUSD');
         }
         return;
     }
     for (const order of orders) {
         console.log('[/] canceling order', order.id, market);
-        await binanceClient.cancelOrder(order.id, market);
+        if (isProduction()) {
+            await binanceClient.cancelOrder(order.id, market);
+        }
     }
 
     /** fetch market prices based on USD */
@@ -74,12 +81,12 @@ const tick = async(config, binanceClient) => {
     `);
 
     /** TODO: enable real trading based on env config; trigger if deal size is more than 10 USD */
-    if (totalToBeSold > 10) {
+    if (totalToBeSold >= MIN_ORDER_VOLUME && isProduction()) {
         console.log('[!] creating limit sell order');
         await binanceClient.createLimitSellOrder(market, sellVolume, sellPrice);
     }
 
-    if (totalToBeBought > 10) {
+    if (totalToBeBought >= MIN_ORDER_VOLUME && isProduction()) {
         console.log('[!] creating limit buy order');
         await binanceClient.createLimitBuyOrder(market, buyVolume, buyPrice);
     }
@@ -97,8 +104,8 @@ const run = () => {
     };
 
     const binanceClient = new ccxt.binance({
-        apiKey: 'hw28TMrYkJvLFYLTTPsGDBZH9MJOfVIwwaCCDFMktO3evJUQw6eokSLSp0X8T5u3', // TODO: process.env.API_KEY,
-        secret: 'LA6DSgTlNDpPUOrfjDHjSyxNmU4bP20EY7pjQ5TyRZxFa1LhC0lApmR6RgIVAizt', // TODO: process.env.API_SECRET,
+        apiKey: process.env.API_KEY,
+        secret: process.env.API_SECRET,
     });
 
     tick(config, binanceClient);
