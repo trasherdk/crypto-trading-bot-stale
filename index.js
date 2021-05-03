@@ -6,7 +6,7 @@ const ccxt = require('ccxt');
 const axios = require('axios');
 
 const tick = async(config, binanceClient) => {
-    var now = new Date();
+    const now = new Date();
     console.log('\n\n [>>>>>>>>>>] starting new iteration...', now.toUTCString(), '\n');
 
     const { asset, base, buySpread, sellSpread, buyAllocation, sellAllocation } =  config;
@@ -16,15 +16,15 @@ const tick = async(config, binanceClient) => {
     const orders = await binanceClient.fetchOpenOrders(market);
     if (orders.length === 2) {
         console.log('[<>] skipping, orders already active...', market);
-        orders.forEach(async order => {
+        for (const order of orders) {
             console.log(order.side, order.amount, 'DOGE @' ,order.price, 'BUSD');
-        });
+        }
         return;
     }
-    orders.forEach(async order => {
+    for (const order of orders) {
         console.log('[/] canceling order', order.id, market);
         await binanceClient.cancelOrder(order.id, market);
-    });
+    }
 
     /** fetch market prices based on USD */
     const coingeckoPrices = await Promise.all([
