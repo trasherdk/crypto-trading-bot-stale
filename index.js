@@ -17,22 +17,6 @@ const tick = async (config, binanceClient) => {
     const { asset, base, buySpread, sellSpread, buyAllocation, sellAllocation } = config;
     const market = `${asset}/${base}`;
 
-    /** cancel previously scheduled (limit) orders for the market */
-    const orders = await binanceClient.fetchOpenOrders(market);
-    if (orders.length === 2) {
-        console.log('[<>] skipping, orders already active...', market);
-        for (const order of orders) {
-            console.log(order.side, order.amount, 'DOGE @', order.price, 'BUSD');
-        }
-        return;
-    }
-    for (const order of orders) {
-        console.log('[/] canceling order', order.id, market);
-        if (isProduction()) {
-            await binanceClient.cancelOrder(order.id, market);
-        }
-    }
-
     /** fetch market prices based on USD */
     const coingeckoPrices = await Promise.all([
         axios.get(
@@ -74,13 +58,42 @@ const tick = async (config, binanceClient) => {
     const totalToBeSold = sellVolume * sellPrice; // of BUSD
     const totalToBeBought = buyVolume * buyPrice; // of BUSD
 
+    /** evaluate open market limit orders */
+    const openOrders = await binanceClient.fetchOpenOrders(market);
+
+    console.log(market, 'open market orders:');
+    for (const order of openOrders) {
+        console.log('[*]', order.side, order.amount, 'DOGE @', order.price, 'BUSD');
+    }
+    /** skip canceling when new orders cannot be created */
+    if (openOrders.length === 2) {
+        console.log('[<>] skipping, both orders are still open...');
+        return;
+    }
+    if (totalToBeSold < MIN_ORDER_VOLUME) {
+        console.log('[<>] skipping, sell order cannot be created');
+        return;
+    }
+    if (totalToBeBought < MIN_ORDER_VOLUME) {
+        console.log('[<>] skipping, buy order cannot be created');
+        return;
+    }
+
+    /** cancel previously scheduled market limit orders */
+    for (const order of openOrders) {
+        console.log('[/] canceling order', order.id, market);
+        if (isProduction()) {
+            await binanceClient.cancelOrder(order.id, market);
+        }
+    }
+
     console.log(`
-        ${market} market limit orders:
-        - Buy ${buyVolume} @ ${buyPrice} => ${totalToBeBought} BUSD
-        - Sell ${sellVolume} @ ${sellPrice} => ${totalToBeSold} BUSD
+        ${market} new market limit orders:
+        [+] Buy ${buyVolume} @ ${buyPrice} => ${totalToBeBought} BUSD
+        [-] Sell ${sellVolume} @ ${sellPrice} => ${totalToBeSold} BUSD
     `);
 
-    /** TODO: enable real trading based on env config; trigger if deal size is more than 10 USD */
+    /** create new limit orders */
     if (totalToBeSold >= MIN_ORDER_VOLUME && isProduction()) {
         console.log('[!] creating limit sell order');
         await binanceClient.createLimitSellOrder(market, sellVolume, sellPrice);
