@@ -24,4 +24,4 @@ $ heroku git:remote -a trading-bot-01
 ```
 
 ### Application entry point
-> [index.js](https://github.com/driule/crypto-trading-bot/blob/main/index.js)
+> [index.js](https://github.com/driule/crypto-trading-bot/blob/main/lib/index.js)
