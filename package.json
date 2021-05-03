@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Crypto trading bot for Binance",
   "main": "index.js",
-
   "scripts": {
     "dev": "nodemon run start",
     "start": "node index.js",

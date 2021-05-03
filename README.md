@@ -17,7 +17,10 @@ $ cp .env.prod .prod
 $ npm install
 
 # run trading bot
-$ npm run dev
+$ npm run start
+
+# setup heroku deployment
+heroku git:remote -a trading-bot-01
 ```
 
 ### Application entry point

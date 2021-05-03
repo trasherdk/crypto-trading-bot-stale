@@ -15,7 +15,10 @@ const tick = async(config, binanceClient) => {
     /** cancel previously scheduled (limit) orders for the market */
     const orders = await binanceClient.fetchOpenOrders(market);
     if (orders.length === 2) {
-        console.log('[<>] skipping, orders already active...', orders, market);
+        console.log('[<>] skipping, orders already active...', market);
+        orders.forEach(async order => {
+            console.log(order.side, order.amount, 'DOGE @' ,order.price, 'BUSD');
+        });
         return;
     }
     orders.forEach(async order => {
@@ -70,7 +73,7 @@ const tick = async(config, binanceClient) => {
         - Sell ${sellVolume} @ ${sellPrice} => ${totalToBeSold} BUSD
     `);
 
-    /** enable real trading if deal size is more than 10 USD */
+    /** TODO: enable real trading based on env config; trigger if deal size is more than 10 USD */
     if (totalToBeSold > 10) {
         console.log('[!] creating limit sell order');
         await binanceClient.createLimitSellOrder(market, sellVolume, sellPrice);
