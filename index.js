@@ -93,7 +93,7 @@ const run = () => {
         sellSpread: 0.02, // { 0-1 } percentage of asset price fluctuation to trigger sell limit order
         buyAllocation: 0.25, // { 0-1 } percentage of how much of the base balance to allocate for the buy order
         sellAllocation: 0.25, // { 0-1 } percentage of how much of the asset balance to allocate for the sell order
-        tickInterval: 10 * 60 * 1000, // ms
+        tickInterval: 1 * 60 * 1000, // ms
     };
 
     const binanceClient = new ccxt.binance({
