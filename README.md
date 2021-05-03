@@ -20,7 +20,7 @@ $ npm install
 $ npm run start
 
 # setup heroku deployment
-heroku git:remote -a trading-bot-01
+$ heroku git:remote -a trading-bot-01
 ```
 
 ### Application entry point
