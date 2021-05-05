@@ -10,18 +10,18 @@ Crypto trading bot for Binance
 
 ### Build Setup
 ```bash
-# copy .prod file
+# create .env file, fill credentials
 $ cp .env.prod .env
 
 # install dependencies
 $ npm install
 
-# run trading bot
-$ npm run start
+# run trading bot(s)
+$ npm start
 
 # setup heroku deployment
 $ heroku git:remote -a trading-bot-01
 ```
 
 ### Application entry point
-> [index.js](https://github.com/driule/crypto-trading-bot/blob/main/lib/index.js)
+> [lib/index.js](https://github.com/driule/crypto-trading-bot/blob/main/lib/index.js)
