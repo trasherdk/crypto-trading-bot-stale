@@ -11,7 +11,7 @@ Crypto trading bot for Binance
 ### Build Setup
 ```bash
 # create .env file, fill credentials
-$ cp .env.prod .env
+$ cp .env.dev .env
 
 # install dependencies
 $ npm install
