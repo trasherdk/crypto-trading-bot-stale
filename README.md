@@ -4,9 +4,8 @@ Crypto trading bot for Binance
 ## Project Setup Guide
 
 ### Requirements
-- `npm ^7.5.4.`
-- `node ^15.10.0`
-- `nodemon ^2.0.7`
+- `npm ^7.13.0.`
+- `node ^16.1.0`
 
 ### Build Setup
 ```bash
