@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Crypto trading bot for Binance",
   "main": "lib/index.js",
+  "type": "module",
   "scripts": {
     "start": "node lib/index.js"
   },
@@ -11,8 +12,8 @@
     "url": "git+https://github.com/driule/crypto-trading-bot.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Andrius Jaskauskas (https://github.com/driule)",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/driule/crypto-trading-bot/issues"
   },
