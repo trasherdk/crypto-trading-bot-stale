@@ -20,7 +20,7 @@
   "homepage": "https://github.com/driule/crypto-trading-bot#readme",
   "dependencies": {
     "axios": "^1.2.2",
-    "ccxt": "^2.6.24",
+    "ccxt": "^2.8.17",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "serve-favicon": "^2.5.0"
